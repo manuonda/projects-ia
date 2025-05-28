@@ -1,3 +1,4 @@
+import { FunctionMessageChunk } from "@langchain/core/messages";
 import {END, START, MessageGraph} from "@langchain/langgraph"
 import * as fs from "fs"
 
@@ -39,4 +40,17 @@ const funSell = input => {
     return input
 }
 
-const funDecision
+const funDecision  = input => {
+    const last = input[0].content
+    const isMarketDown =  last.includes("SP500") && last.includes("down")
+    return isMarketDown?
+      "actionBuyStocks": "actionShellSocks"
+}
+
+const graph2 = new MessageGraph()
+.addNode("decision", funDecision)
+.addNode("actionBuyStocks",funBuy)
+.addNode("actionSellSocks",funSell)
+
+//setup edges 
+.addEdge(START, "decision")
