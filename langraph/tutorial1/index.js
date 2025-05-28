@@ -54,3 +54,6 @@ const graph2 = new MessageGraph()
 
 //setup edges 
 .addEdge(START, "decision")
+
+
+//informcion
