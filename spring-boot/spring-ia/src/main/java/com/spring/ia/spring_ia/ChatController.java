@@ -47,6 +47,17 @@ public class ChatController {
         .entity(new ParameterizedTypeReference<List<ActorFilms>>() {});
    
     }
+
+
+    @GetMapping("/chat/template")
+    public String getChatTemplate() {
+        return this.ChatClient.prompt()
+        .user( u->  u.text("Tell me the names of 5 movies whose soundtrack was compose by {composer}")
+        .param("composer", "John Williams"))
+        .call()
+        .content();
+    }
+    
     
     
 
