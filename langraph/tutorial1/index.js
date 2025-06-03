@@ -47,13 +47,23 @@ const funDecision  = input => {
       "actionBuyStocks": "actionShellSocks"
 }
 
-const graph2 = new MessageGraph()
-.addNode("decision", funDecision)
+const graph2 = new MessageGraph();
+
+// add nodes 
+graph2.addNode("decision", funDecision)
 .addNode("actionBuyStocks",funBuy)
 .addNode("actionSellSocks",funSell)
 
-//setup edges 
-.addEdge(START, "decision")
+//setup edges
+graph2.addEdge(START, "decision")
+.addConditionalEdges(
+    "decision",
+    funDecision,
+  [ "actionBuyStocks","actionSellSocks"]
+  )
+  .addEdge("actionBuyStocks",END)
+   .addEdge("actionSellSocks", END);
 
-
-//informcion
+const runnable2 = graph.compile()
+const result2 = await runnable.invoke("Latest news SP500 is down to 500");
+console.log(result2);
