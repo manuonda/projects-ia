@@ -18,7 +18,6 @@ import org.springframework.web.server.session.InMemoryWebSessionStore;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-import static org.springframework.ai.chat.client.advisor.AbstractChatMemoryAdvisor.
 record ActorFilms(String actor, List<String> movies){}
 
 @RestController
@@ -89,14 +88,7 @@ public class ChatController {
     }
 
 
-    @PostMapping("/{userId}/chat")
-    public String chatById(@PathVariable("userId") String userId,
-    @RequestBody String request) {
-        return this.chatClient
-        .prompt()
-        .advisors(advisor -> advisor.param(CHAT_MEMOR, advisor) )
-    
-    }
+
     
     
     
