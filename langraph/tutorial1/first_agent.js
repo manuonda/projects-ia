@@ -2,6 +2,8 @@ import * as dotenv from 'dotenv';
 import { ChatOpenAI } from "@langchain/openai";
 import { z } from 'zod';
 import { tool } from '@langchain/core/tools';
+import { ToolNode } from '@langchain/langgraph/prebuilt';
+import { MessageGraph, MessagesAnnotation, START, StateGraph } from '@langchain/langgraph';
 
 dotenv.config();
 
@@ -29,3 +31,14 @@ const gmtTimeTool = tool(
         schema: gmtTimeSchema,
     }
 )
+
+const tool = new ToolNode([gmtTimeTool])
+
+
+const graph = new StateGraph(MessagesAnnotation)
+    .addNode("agent", llm)
+    .addNode("tools", tool)
+    .addEdge(START, "agent")
+    .addEdge("tools", "agent")
+    .addConditionalEdges("agent", shouldContinue,["tools",END])
+    .compile();
