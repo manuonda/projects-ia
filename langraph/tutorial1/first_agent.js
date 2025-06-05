@@ -8,7 +8,7 @@ import { MessageGraph, MessagesAnnotation, START, StateGraph } from '@langchain/
 dotenv.config();
 
 
-const llm = new ChatOpenAI({
+const llmNode = new ChatOpenAI({
     model: 'gpt-4o',
     temperature: 0.7,
     maxTokens: 1000,
@@ -32,13 +32,18 @@ const gmtTimeTool = tool(
     }
 )
 
-const tool = new ToolNode([gmtTimeTool])
+const toolNode = new ToolNode([gmtTimeTool])
 
 
 const graph = new StateGraph(MessagesAnnotation)
-    .addNode("agent", llm)
-    .addNode("tools", tool)
+    .addNode("agent", llmNode)
+    .addNode("tools", toolNode)
     .addEdge(START, "agent")
     .addEdge("tools", "agent")
     .addConditionalEdges("agent", shouldContinue,["tools",END])
-    .compile();
+  
+const runnable = graph.compile();
+
+const image = await runnable.getGraph().drawMermaidPng() 
+const arrayBuffer = await image.arrayBuffer() 
+await fs.writeFileSync( "graph-struct.png", new Uint8Array(arrayBuffer) )
