@@ -8,12 +8,15 @@ import { MessageGraph, MessagesAnnotation, START, StateGraph } from '@langchain/
 dotenv.config();
 
 
-const llmNode = new ChatOpenAI({
+const ll = new ChatOpenAI({
     model: 'gpt-4o',
     temperature: 0.7,
     maxTokens: 1000,
     openAIApiKey: process.env.OPENAI_API_KEY
 })
+
+const getLastMessage = ({messages}) => messages[messages.length - 1];
+
 
 const gmtTimeSchema = z.object({
     city : z.string().describe("The name of the city to get the GMT time for"),
@@ -32,11 +35,27 @@ const gmtTimeTool = tool(
     }
 )
 
-const toolNode = new ToolNode([gmtTimeTool])
 
+const tools = [gmtTimeTool];
+const toolNode = new ToolNode(tools)
+const llmWithTools = llm.bindTools(tools)
+
+const callModelNode = async(state) => {
+    const {messages} = state;
+    //const llmWithTools = llm.bindTools([gmtTimeTool]);
+    const result = await llmWithTools.invoke(messages);
+    return {messages: [result]}
+}
+
+const shouldContinue = (state) => {
+    const lastMessage = getLastMessage(state);
+    const didAICalledAnyTools = lastMesssage._getType() === 'ai' &&
+    lastMessage.tool_calls?.length
+    return didAICalledAnyTools ? "tools" : END;
+}
 
 const graph = new StateGraph(MessagesAnnotation)
-    .addNode("agent", llmNode)
+    .addNode("agent", callModelNode)
     .addNode("tools", toolNode)
     .addEdge(START, "agent")
     .addEdge("tools", "agent")
