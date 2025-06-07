@@ -3,12 +3,15 @@ import { ChatOpenAI } from "@langchain/openai";
 import { z } from 'zod';
 import { tool } from '@langchain/core/tools';
 import { ToolNode } from '@langchain/langgraph/prebuilt';
-import { MessageGraph, MessagesAnnotation, START, StateGraph } from '@langchain/langgraph';
+import { MessageGraph, MessagesAnnotation, START, END,StateGraph } from '@langchain/langgraph';
+import { SystemMessage, HumanMessage } from '@langchain/core/messages';
+import * as fs from "fs"
+
 
 dotenv.config();
 
 
-const ll = new ChatOpenAI({
+const llm = new ChatOpenAI({
     model: 'gpt-4o',
     temperature: 0.7,
     maxTokens: 1000,
@@ -21,6 +24,10 @@ const getLastMessage = ({messages}) => messages[messages.length - 1];
 const gmtTimeSchema = z.object({
     city : z.string().describe("The name of the city to get the GMT time for"),
 })
+
+const weatherApiSchema = z.object({
+   city: z.string().describe("The name of the city"),
+});
 
 const gmtTimeTool = tool(
     async({city}) => {
@@ -49,7 +56,7 @@ const callModelNode = async(state) => {
 
 const shouldContinue = (state) => {
     const lastMessage = getLastMessage(state);
-    const didAICalledAnyTools = lastMesssage._getType() === 'ai' &&
+    const didAICalledAnyTools = lastMessage._getType() === 'ai' &&
     lastMessage.tool_calls?.length
     return didAICalledAnyTools ? "tools" : END;
 }
@@ -62,6 +69,17 @@ const graph = new StateGraph(MessagesAnnotation)
     .addConditionalEdges("agent", shouldContinue,["tools",END])
   
 const runnable = graph.compile();
+const result = await runnable.invoke({
+    messages: [  
+        new SystemMessage("You are responsible "+
+            " for answering user" 
+            + " questions using tools. These tools sometimes fail" 
+            + ", but you keep trying until you get a valid response."), 
+            new HumanMessage("What is the time now in Singapore?" 
+                + " I would like to call a friend who lives there.") 
+        ]
+})
+console.log("AI : "+ getLastMessage(result).content);
 
 const image = await runnable.getGraph().drawMermaidPng() 
 const arrayBuffer = await image.arrayBuffer() 
