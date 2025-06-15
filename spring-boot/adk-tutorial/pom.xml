@@ -51,6 +51,11 @@
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+  <groupId>com.google.adk</groupId>
+  <artifactId>google-adk</artifactId>
+  <version>0.1.0</version>
+</dependency>
 	</dependencies>
 
 	<build>
