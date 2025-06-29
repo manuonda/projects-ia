@@ -1,0 +1,8 @@
+Your conversation log: 
+You: Hol mi nombre es David tengo 40 años
+AI: ¡Hola, David! ¿En qué puedo ayudarte hoy?
+You: Cual es mi nombre
+AI: Tu nombre es David. ¿Hay algo más en lo que pueda asistirte?
+You: cuantos añostengo
+AI: Tienes 40 años. Si necesitas algo más, no dudes en decírmelo.
+End of conversation
