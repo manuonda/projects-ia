@@ -2418,3 +2418,4 @@ langraph/tutorial1/node_modules/@langchain/openai/dist/utils/openai.js
 >>>>>>> f687e3e (feat: Update @langchain/openai to version 0.5.13 with Zod v4 support and new utility functions)
 python/python-ai-agent-tutorial/simple-agent/.env
 langraph/tutorial_agents/.env
+langraph/tutorial_agents/.env
