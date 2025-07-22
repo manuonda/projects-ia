@@ -1,5 +1,19 @@
 package com.langchain4j;
 
-public record ChatDTO() {
-
+public class ChatDTO {
+    private String message;
+    
+    public ChatDTO() {}
+    
+    public ChatDTO(String message) {
+        this.message = message;
+    }
+    
+    public String message() {
+        return message;
+    }
+    
+    public void setMessage(String message) {
+        this.message = message;
+    }
 }

@@ -58,7 +58,6 @@ public class ChatMemory {
 
     @GetMapping("/memoryUser")
     public void windowChatMemoryUser() {
-       MessageWindowChatMemory chatMemory = MessageWindowChatMemory.withMaxMessages(100);
        ChatModel chatModel = OpenAiChatModel.builder()
                              .apiKey(ApiKeys.OPENAI_API_KEY)
                              .modelName(GPT_4_O_MINI)
