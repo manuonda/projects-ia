@@ -8,7 +8,11 @@ import org.springframework.web.bind.annotation.RestController;
 import dev.langchain4j.data.message.ChatMessage;
 import dev.langchain4j.memory.chat.MessageWindowChatMemory;
 import dev.langchain4j.model.chat.ChatModel;
+import dev.langchain4j.model.chat.StreamingChatModel;
+import dev.langchain4j.model.chat.response.ChatResponse;
+import dev.langchain4j.model.chat.response.StreamingChatResponseHandler;
 import dev.langchain4j.model.openai.OpenAiChatModel;
+import dev.langchain4j.model.openai.OpenAiStreamingChatModel;
 
 import java.util.List;
 import java.util.Map;
@@ -97,11 +101,65 @@ public class ChatMemory {
         // Now, comment out the two lines above, uncomment the two lines below, and run again.
 
         // String answerWithName = assistant.chat("What is my name?");
-        // System.out.println(answerWithName); // Your name is Klaus.
-
-
-        
+        // System.out.println(answerWithName); // Your name is Klaus.        
     }
+
+    @GetMapping("/persistentMemoryUser")
+    public void persistentMemoryUser() {
+        MessageWindowChatMemory chatMemory =  MessageWindowChatMemory.builder()
+        .maxMessages(10)
+        .chatMemoryStore(new PersistentChatMemoryStore())
+        .build();
+
+        ChatModel model = OpenAiChatModel.builder()
+        .modelName(GPT_4_O_MINI)
+        .apiKey(ApiKeys.OPENAI_API_KEY)
+        .build();
+
+        AssistantUser assistantUser = AiServices.builder(AssistantUser.class)
+        .chatModel(model)
+        .chatMemory(chatMemory)
+        .build();
+
+        System.out.println(assistantUser.chat(1, "Hola mi nombre es David"));
+        System.out.println(assistantUser.chat(2, "hola mi nombre es Andres"));
+        System.out.println(assistantUser.chat(1, "Cual es mi nombre"));
+        System.out.println(assistantUser.chat(2,"Cual es mi nombre?"));
+
+    }
+
+    @GetMapping("/streaming")
+    public void streamingChatModel() {
+        StreamingChatModel model = OpenAiStreamingChatModel.builder()
+        .apiKey(ApiKeys.OPENAI_API_KEY)
+        .modelName(GPT_4_O_MINI)
+        .build();
+
+        String userMessage = "Tell me a joke";
+
+        model.chat(userMessage, new StreamingChatResponseHandler() {
+
+            @Override
+            public void onPartialResponse(String partialResponse) {
+               
+                System.out.println("onPartilResponse : " + partialResponse);
+            }
+
+            @Override
+            public void onCompleteResponse(ChatResponse completeResponse) {
+               System.out.println("onCompleteResponse :" + completeResponse);
+            }
+
+            @Override
+            public void onError(Throwable error) {
+                error.printStackTrace();
+            }
+            
+        });
+
+    }
+    
+    
 
       // You can create your own implementation of ChatMemoryStore and store chat memory whenever you'd like
     static class PersistentChatMemoryStore implements ChatMemoryStore {
